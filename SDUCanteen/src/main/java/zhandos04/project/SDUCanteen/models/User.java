@@ -24,22 +24,15 @@ public class User implements UserDetails {
     private int id;
 
     @Column(name = "fullname")
-    @Pattern(regexp = "[A-Z]\\w+ [A-Z]\\w+", message = "fullname")
     private String fullName;
 
     @Column(name = "uniid", unique = true)
-    @Pattern(regexp = "^(1\\d|2[0-4])0(10[0-9]|11[0-9]|120)\\d{3}$",
-            message = "uniID")
     private String uniID;
 
     @Column(name = "password")
-    @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&_#])[A-Za-z\\d@$!%*?&_#]{8,}$",
-            message = "password")
     private String password;
 
     @Column(name = "phonenumber", unique = true)
-    @Pattern(regexp = "^((\\+7|8)\\d{10})$",
-            message = "phoneNumber")
     private String phoneNumber;
 
     @Column(name = "creationdate")

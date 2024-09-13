@@ -25,7 +25,7 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        User user = getUser(username).get();
+        User user = getUserByID(username).get();
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getAuthorities());
     }
 
@@ -35,7 +35,10 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }
-    public Optional<User> getUser(String uniID) {
+    public Optional<User> getUserByID(String uniID) {
         return userRepository.findByUniID(uniID);
+    }
+    public Optional<User> getUserByPhoneNumber(String uniID) {
+        return userRepository.findByPhoneNumber(uniID);
     }
 }

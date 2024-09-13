@@ -50,9 +50,13 @@ public class AuthController {
             }
             throw new IncorrectJSONException(str.toString());
         }
-        Optional<User> userOptional = userService.getUser(userDTO.getUniID());
+        Optional<User> userOptional = userService.getUserByID(userDTO.getUniID());
         if (userOptional.isPresent()){
             throw new UserAlreadyExistsException("a user with that username already exists");
+        }
+        Optional<User> userOptional1 = userService.getUserByPhoneNumber(userDTO.getPhoneNumber());
+        if (userOptional1.isPresent()){
+            throw new UserAlreadyExistsException("a user with that phoneNumber already exists");
         }
         userService.save(convertToUser(userDTO));
         return HttpStatus.ACCEPTED;
@@ -60,7 +64,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthDTO> login(@RequestBody @Valid UserDTO userDTO) throws BadCredentialsException {
-        Optional<User> userOptional = userService.getUser(userDTO.getUniID());
+        Optional<User> userOptional = userService.getUserByID(userDTO.getUniID());
         if (userOptional.isEmpty()){
             throw new UsernameNotFoundException("there is no user with that username");
         }
