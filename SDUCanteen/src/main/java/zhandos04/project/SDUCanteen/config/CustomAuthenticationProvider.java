@@ -24,16 +24,14 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication authentication) throws BadCredentialsException {
         UserDetails user = userService.loadUserByUsername(authentication.getName());
-        if (user.getUsername() == null){
-            throw new BadCredentialsException("Bad cred");
-        }
+
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
 
         if (user.getUsername().equals(username) && passwordEncoder.matches(password , user.getPassword())){
             return new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), user.getAuthorities());
         }else{
-            throw new BadCredentialsException("Incorrect password");
+            throw new BadCredentialsException("Incorrect ID or password");
         }
     }
 

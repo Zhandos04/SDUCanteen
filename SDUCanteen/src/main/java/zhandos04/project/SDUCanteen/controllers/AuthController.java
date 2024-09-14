@@ -13,6 +13,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import zhandos04.project.SDUCanteen.config.CustomAuthenticationProvider;
 import zhandos04.project.SDUCanteen.dto.AuthDTO;
+import zhandos04.project.SDUCanteen.dto.LoginDTO;
 import zhandos04.project.SDUCanteen.dto.UserDTO;
 import zhandos04.project.SDUCanteen.jwt.JwtService;
 import zhandos04.project.SDUCanteen.models.User;
@@ -42,10 +43,10 @@ public class AuthController {
 
     @PostMapping( "/signup")
     public HttpStatus register(@RequestBody @Valid UserDTO userDTO, BindingResult bindingResult) throws UserAlreadyExistsException, IncorrectJSONException {
-        if (bindingResult.hasErrors()){
+        if (bindingResult.hasErrors()) {
             List<FieldError> errors = bindingResult.getFieldErrors();
             StringBuilder str = new StringBuilder();
-            for (FieldError error : errors){
+            for (FieldError error : errors) {
                 str.append(error.getField()).append(": ").append(error.getDefaultMessage()).append(";\n");
             }
             throw new IncorrectJSONException(str.toString());
@@ -63,18 +64,19 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthDTO> login(@RequestBody @Valid UserDTO userDTO) throws BadCredentialsException {
-        Optional<User> userOptional = userService.getUserByID(userDTO.getUniID());
+    public ResponseEntity<AuthDTO> login(@RequestBody LoginDTO loginDTO) throws BadCredentialsException {
+
+        Optional<User> userOptional = userService.getUserByID(loginDTO.getUniID());
         if (userOptional.isEmpty()){
-            throw new UsernameNotFoundException("there is no user with that username");
+            throw new UsernameNotFoundException("Incorrect ID or password");
         }
-        authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(userDTO.getUniID(), userDTO.getPassword()));
+        authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(loginDTO.getUniID(), loginDTO.getPassword()));
         AuthDTO authDTO = modelMapper.map(userOptional.get(), AuthDTO.class);
         authDTO.setToken(jwtService.generateToken(authDTO.getUniID()));
         return new ResponseEntity<>(authDTO, HttpStatus.OK);
-
     }
     public User convertToUser(UserDTO userDTO) {
         return modelMapper.map(userDTO, User.class);
     }
+
 }

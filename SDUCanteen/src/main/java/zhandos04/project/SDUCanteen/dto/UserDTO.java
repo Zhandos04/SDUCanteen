@@ -13,7 +13,7 @@ public class UserDTO {
     private String fullName;
 
     @Pattern(regexp = "^(1\\d|2[0-4])0(10[0-9]|11[0-9]|120)\\d{3}$",
-            message = "uniID")
+            message = "Something wrong with ID")
     private String uniID;
 
     @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&_#])(?=.*[a-z])[A-Za-z\\d@$!%*?&_#]{8,}$",
