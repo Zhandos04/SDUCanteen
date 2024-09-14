@@ -8,6 +8,7 @@ import zhandos04.project.SDUCanteen.models.Food;
 import zhandos04.project.SDUCanteen.repositories.FoodRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -20,5 +21,8 @@ public class FoodService {
     }
     public List<Food> getAllFoods() {
         return foodRepository.findAll();
+    }
+    public Optional<Food> getByFoodName(String foodname) {
+        return foodRepository.getFoodByNameOfFood(foodname);
     }
 }

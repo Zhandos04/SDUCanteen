@@ -55,7 +55,7 @@ public class AuthController {
         if (userOptional.isPresent()){
             throw new UserAlreadyExistsException("a user with that username already exists");
         }
-        Optional<User> userOptional1 = userService.getUserByPhoneNumber(userDTO.getPhoneNumber());
+        Optional<User> userOptional1 = userService.getUserByPhoneNumber(userDTO.getPhoneNumber().substring(userDTO.getPhoneNumber().length() - 10));
         if (userOptional1.isPresent()){
             throw new UserAlreadyExistsException("a user with that phone number already exists");
         }
@@ -75,6 +75,7 @@ public class AuthController {
         authDTO.setToken(jwtService.generateToken(authDTO.getUniID()));
         return new ResponseEntity<>(authDTO, HttpStatus.OK);
     }
+
     public User convertToUser(UserDTO userDTO) {
         return modelMapper.map(userDTO, User.class);
     }

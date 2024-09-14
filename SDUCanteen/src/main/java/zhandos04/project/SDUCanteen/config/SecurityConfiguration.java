@@ -16,10 +16,6 @@ import zhandos04.project.SDUCanteen.jwt.JwtFilter;
 @EnableWebSecurity
 @Configuration
 public class SecurityConfiguration {
-    @Bean
-    public ModelMapper modelMapper(){
-        return new ModelMapper();
-    }
 
     private final JwtFilter jwtFilter;
     private final CustomAuthenticationProvider customAuthenticationProvider;
@@ -35,7 +31,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(request ->
-                request.requestMatchers("/auth/**").permitAll().requestMatchers(HttpMethod.GET, "/food/**").permitAll().anyRequest().authenticated());
+                request.requestMatchers("/auth/**").permitAll().requestMatchers("/food/**").permitAll().requestMatchers("/basket/**").permitAll().anyRequest().authenticated());
         http.sessionManagement(req -> req.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authenticationProvider(customAuthenticationProvider);
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

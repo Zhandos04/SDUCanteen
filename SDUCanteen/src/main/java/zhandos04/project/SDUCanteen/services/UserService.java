@@ -33,6 +33,7 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void save(User user){
+        user.setPhoneNumber(user.getPhoneNumber().substring(user.getPhoneNumber().length() - 10));
         user.setCreationDate(Instant.now());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
@@ -40,7 +41,7 @@ public class UserService implements UserDetailsService {
     public Optional<User> getUserByID(String uniID) {
         return userRepository.findByUniID(uniID);
     }
-    public Optional<User> getUserByPhoneNumber(String uniID) {
-        return userRepository.findByPhoneNumber(uniID);
+    public Optional<User> getUserByPhoneNumber(String phoneNumber) {
+        return userRepository.findByPhoneNumber(phoneNumber);
     }
 }
