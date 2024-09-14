@@ -57,7 +57,7 @@ public class AuthController {
         }
         Optional<User> userOptional1 = userService.getUserByPhoneNumber(userDTO.getPhoneNumber());
         if (userOptional1.isPresent()){
-            throw new UserAlreadyExistsException("a user with that phoneNumber already exists");
+            throw new UserAlreadyExistsException("a user with that phone number already exists");
         }
         userService.save(convertToUser(userDTO));
         return HttpStatus.ACCEPTED;
