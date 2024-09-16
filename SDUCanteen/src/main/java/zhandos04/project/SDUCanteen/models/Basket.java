@@ -19,4 +19,7 @@ public class Basket {
     private int quantity;
     @Column(name = "price")
     private int price;
+    @ManyToOne
+    @JoinColumn(name = "userid", referencedColumnName = "id", nullable = false)
+    private User user;
 }

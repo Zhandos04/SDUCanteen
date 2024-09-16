@@ -3,13 +3,15 @@ package zhandos04.project.SDUCanteen.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 public class BasketAnswerDTO {
-    private String nameOfFood;
-    private String price;
-    private String photo;
-    private String description;
-    private String category;
-    private String sumofprice;
+    private List<BasketResponseDTO> basket;
+    private Integer sum;
+    public BasketAnswerDTO(List<BasketResponseDTO> basket, Integer sum) {
+        this.basket = basket;
+        this.sum = sum;
+    }
 }
