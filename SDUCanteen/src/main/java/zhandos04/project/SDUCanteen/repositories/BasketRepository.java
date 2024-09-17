@@ -1,6 +1,7 @@
 package zhandos04.project.SDUCanteen.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import zhandos04.project.SDUCanteen.models.Basket;
@@ -20,4 +21,7 @@ public interface BasketRepository extends JpaRepository<Basket, Integer> {
 
     @Query("SELECT b FROM Basket b WHERE b.user.id = :userId")
     List<Basket> findAllByUserID(int userId);
+    @Modifying
+    @Query("DELETE FROM Basket b WHERE b.nameoffood = :nameoffood AND b.user.id = :userId")
+    void deleteBasketByNameoffoodAndUserID(String nameoffood, Integer userId);
 }

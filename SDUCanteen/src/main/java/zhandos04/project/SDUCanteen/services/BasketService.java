@@ -64,6 +64,12 @@ public class BasketService {
         }
         return new BasketAnswerDTO(list, getSum(user.getId()));
     }
+    @Transactional
+    public void remove(String nameoffood) {
+        String username = getUsername();
+        User user = userService.getUserByID(username).get();
+        basketRepository.deleteBasketByNameoffoodAndUserID(nameoffood, user.getId());
+    }
     private String getUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = null;
