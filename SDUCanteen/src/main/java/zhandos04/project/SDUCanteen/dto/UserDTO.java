@@ -20,7 +20,7 @@ public class UserDTO {
             message = "password")
     private String password;
 
-    @Pattern(regexp = "^((\\+7|8)\\d{10})$",
+    @Pattern(regexp = "^((\\+7)\\d{10})$",
             message = "phoneNumber")
     private String phoneNumber;
 }

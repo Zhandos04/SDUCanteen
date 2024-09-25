@@ -33,8 +33,18 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void save(User user){
-        user.setPhoneNumber(user.getPhoneNumber().substring(user.getPhoneNumber().length() - 10));
         user.setCreationDate(Instant.now());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        userRepository.save(user);
+    }
+    @Transactional
+    public void saveUserConfirmationCode(Integer id, String code) {
+        User user = userRepository.getUserById(id);
+        user.setConfirmationCode(code);
+        userRepository.save(user);
+    }
+    @Transactional
+    public void updatePassword(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
     }

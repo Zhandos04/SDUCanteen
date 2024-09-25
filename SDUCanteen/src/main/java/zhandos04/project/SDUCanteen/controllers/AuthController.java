@@ -12,11 +12,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import zhandos04.project.SDUCanteen.config.CustomAuthenticationProvider;
-import zhandos04.project.SDUCanteen.dto.AuthDTO;
-import zhandos04.project.SDUCanteen.dto.LoginDTO;
-import zhandos04.project.SDUCanteen.dto.UserDTO;
+import zhandos04.project.SDUCanteen.dto.*;
 import zhandos04.project.SDUCanteen.jwt.JwtService;
 import zhandos04.project.SDUCanteen.models.User;
+import zhandos04.project.SDUCanteen.services.EmailService;
 import zhandos04.project.SDUCanteen.services.UserService;
 import zhandos04.project.SDUCanteen.util.IncorrectJSONException;
 import zhandos04.project.SDUCanteen.util.UserAlreadyExistsException;
@@ -32,13 +31,15 @@ public class AuthController {
     private final JwtService jwtService;
     private final CustomAuthenticationProvider authenticationProvider;
     private final ModelMapper modelMapper;
+    private final EmailService emailService;
 
     @Autowired
-    public AuthController(UserService userService, JwtService jwtService, CustomAuthenticationProvider authenticationProvider, ModelMapper modelMapper) {
+    public AuthController(UserService userService, JwtService jwtService, CustomAuthenticationProvider authenticationProvider, ModelMapper modelMapper, EmailService emailService) {
         this.userService = userService;
         this.jwtService = jwtService;
         this.authenticationProvider = authenticationProvider;
         this.modelMapper = modelMapper;
+        this.emailService = emailService;
     }
 
     @PostMapping( "/signup")
@@ -53,9 +54,9 @@ public class AuthController {
         }
         Optional<User> userOptional = userService.getUserByID(userDTO.getUniID());
         if (userOptional.isPresent()){
-            throw new UserAlreadyExistsException("a user with that username already exists");
+            throw new UserAlreadyExistsException("a user with that id already exists");
         }
-        Optional<User> userOptional1 = userService.getUserByPhoneNumber(userDTO.getPhoneNumber().substring(userDTO.getPhoneNumber().length() - 10));
+        Optional<User> userOptional1 = userService.getUserByPhoneNumber(userDTO.getPhoneNumber());
         if (userOptional1.isPresent()){
             throw new UserAlreadyExistsException("a user with that phone number already exists");
         }
@@ -74,6 +75,40 @@ public class AuthController {
         AuthDTO authDTO = modelMapper.map(userOptional.get(), AuthDTO.class);
         authDTO.setToken(jwtService.generateToken(authDTO.getUniID()));
         return new ResponseEntity<>(authDTO, HttpStatus.OK);
+    }
+    @PostMapping("/forgot-password")
+    public HttpStatus forgotPassword(@RequestBody EmailDTO emailDTO) {
+        Optional<User> user = userService.getUserByID(emailDTO.getEmail());
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException("Email not found");
+        }
+
+        String code = generateCode();
+        userService.saveUserConfirmationCode(user.get().getId(), code);
+
+        emailService.sendEmail(emailDTO.getEmail() + "@stu.sdu.edu.kz", "SDUCanteen Reset Password", "Your code is: " + code);
+
+        return HttpStatus.OK;
+    }
+    @PostMapping("/verify-password")
+    public HttpStatus verifyPassword(@RequestBody CodeDTO codeDTO) {
+        Optional<User> admin = userService.getUserByID(codeDTO.getEmail());
+        if(admin.get().getConfirmationCode().equals(codeDTO.getCode())) {
+            return HttpStatus.OK;
+        }
+        return HttpStatus.BAD_REQUEST;
+    }
+
+    @PostMapping("/update-password")
+    public HttpStatus updatePassword(@RequestBody LoginDTO loginDTO) {
+        Optional<User> user = userService.getUserByID(loginDTO.getUniID());
+        user.get().setPassword(loginDTO.getPassword());
+        userService.updatePassword(user.get());
+        return HttpStatus.OK;
+    }
+
+    private String generateCode() {
+        return Integer.toString((int)(Math.random() * 9000) + 1000);
     }
 
     public User convertToUser(UserDTO userDTO) {

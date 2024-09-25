@@ -34,6 +34,8 @@ public class User implements UserDetails {
 
     @Column(name = "creationdate")
     private Instant creationDate;
+    @Column(name = "confirmation_code")
+    private String confirmationCode;
 
     @Override
     public boolean isAccountNonExpired() {
