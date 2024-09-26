@@ -1,5 +1,10 @@
 package zhandos04.project.SDUCanteen.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,6 +20,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/food")
+@Tag(name="Food", description="Взаймодействие с еды")
 @CrossOrigin(origins = "*")
 public class FoodController {
     private final FoodService foodService;
@@ -27,6 +33,8 @@ public class FoodController {
     }
 
     @GetMapping("/all")
+    @Operation(summary = "Get all food items", description = "Returns a list of all available food items in the canteen.")
+    @ApiResponse(responseCode = "200", description = "List of food items", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FoodDTO.class)))
     public List<FoodDTO> getAll() {
         return foodService.getAllFoods().stream().map(this::convertToFoodDTO)
                 .collect(Collectors.toList());

@@ -1,5 +1,10 @@
 package zhandos04.project.SDUCanteen.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +30,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
+@Tag(name="Auth", description="Взаймодействие с пользователями")
 @CrossOrigin(origins = "*")
 public class AuthController {
     private final UserService userService;
@@ -43,6 +49,9 @@ public class AuthController {
     }
 
     @PostMapping( "/signup")
+    @Operation(summary = "Register a new user", description = "Registers a new user by checking for existing IDs and phone numbers.")
+    @ApiResponse(responseCode = "202", description = "User registered successfully")
+    @ApiResponse(responseCode = "400", description = "Invalid user data provided", content = @Content)
     public HttpStatus register(@RequestBody @Valid UserDTO userDTO, BindingResult bindingResult) throws UserAlreadyExistsException, IncorrectJSONException {
         if (bindingResult.hasErrors()) {
             List<FieldError> errors = bindingResult.getFieldErrors();
@@ -65,6 +74,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "User login", description = "Authenticates a user and returns an Auth token.")
+    @ApiResponse(responseCode = "200", description = "User logged in successfully", content = @Content(schema = @Schema(implementation = AuthDTO.class)))
+    @ApiResponse(responseCode = "401", description = "Incorrect ID or password")
     public ResponseEntity<AuthDTO> login(@RequestBody LoginDTO loginDTO) throws BadCredentialsException {
 
         Optional<User> userOptional = userService.getUserByID(loginDTO.getUniID());
@@ -77,6 +89,9 @@ public class AuthController {
         return new ResponseEntity<>(authDTO, HttpStatus.OK);
     }
     @PostMapping("/forgot-password")
+    @Operation(summary = "Password recovery", description = "Initiates a password recovery process by sending a reset code to the user's email.")
+    @ApiResponse(responseCode = "200", description = "Reset code sent successfully")
+    @ApiResponse(responseCode = "404", description = "Email not found")
     public HttpStatus forgotPassword(@RequestBody EmailDTO emailDTO) {
         Optional<User> user = userService.getUserByID(emailDTO.getEmail());
         if (user.isEmpty()) {
@@ -91,15 +106,20 @@ public class AuthController {
         return HttpStatus.OK;
     }
     @PostMapping("/verify-password")
+    @Operation(summary = "Verify reset code", description = "Verifies the reset code entered by the user.")
+    @ApiResponse(responseCode = "200", description = "Reset code verified successfully")
+    @ApiResponse(responseCode = "401", description = "Incorrect reset code")
     public HttpStatus verifyPassword(@RequestBody CodeDTO codeDTO) {
         Optional<User> admin = userService.getUserByID(codeDTO.getEmail());
-        if(admin.get().getConfirmationCode().equals(codeDTO.getCode())) {
-            return HttpStatus.OK;
+        if(!admin.get().getConfirmationCode().equals(codeDTO.getCode())) {
+            throw new BadCredentialsException("Incorrect Code");
         }
-        return HttpStatus.BAD_REQUEST;
+        return HttpStatus.OK;
     }
 
     @PostMapping("/update-password")
+    @Operation(summary = "Update user password", description = "Updates the user's password after verification.")
+    @ApiResponse(responseCode = "200", description = "Password updated successfully")
     public HttpStatus updatePassword(@RequestBody LoginDTO loginDTO) {
         Optional<User> user = userService.getUserByID(loginDTO.getUniID());
         user.get().setPassword(loginDTO.getPassword());
